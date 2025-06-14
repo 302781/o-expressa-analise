@@ -28,11 +28,21 @@ const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ result }) => {
       {face ? (
         <div className="space-y-2">
           <ResultRow label="Edad" data={face.age} />
-          <ResultRow label="Género" data={`${face.gender} (${face.genderScore})`} />
+          <ResultRow label="Género" data={`${face.gender} (${(face.genderScore || 0).toFixed(2)})`} />
           <ResultRow label="Emoción Principal" data={face.emotion.reduce((prev, curr) => (prev.score > curr.score ? prev : curr)).emotion} />
           {face.emotion.map(e => <ResultRow key={e.emotion} label={`- ${e.emotion}`} data={e.score} />)}
-          <ResultRow label="Postura Cabeza" data={face.rotation?.angle.map(a => (a * 180 / Math.PI).toFixed(0) + '°').join(' | ')} />
-          <ResultRow label="Mirada" data={face.iris > 0 ? `~${(face.iris * 100).toFixed(0)}% a la derecha` : `~${(Math.abs(face.iris) * 100).toFixed(0)}% a la izquierda`} />
+          {face.rotation?.angle && (
+            <ResultRow 
+              label="Postura Cabeza" 
+              data={`Yaw: ${(face.rotation.angle.yaw * 180 / Math.PI).toFixed(0)}° | Pitch: ${(face.rotation.angle.pitch * 180 / Math.PI).toFixed(0)}° | Roll: ${(face.rotation.angle.roll * 180 / Math.PI).toFixed(0)}°`} 
+            />
+          )}
+          {typeof (face as any).iris === 'number' && (
+             <ResultRow 
+               label="Mirada" 
+               data={(face as any).iris > 0 ? `~${((face as any).iris * 100).toFixed(0)}% a la derecha` : `~${(Math.abs((face as any).iris) * 100).toFixed(0)}% a la izquierda`}
+             />
+          )}
           <ResultRow label="Gestos" data={result.gesture.length > 0 ? result.gesture.map(g => `${g.gesture}`).join(', ') : 'Ninguno'} />
         </div>
       ) : (
